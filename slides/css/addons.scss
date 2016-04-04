@@ -1,0 +1,15 @@
+.column-container {
+
+}
+
+.double-column {
+  display: inline-block;
+  position: relative;
+  width: 50%;
+  vertical-align: top;
+}
+
+.borderless {
+  border-width: 0 !important;
+  box-shadow: 0 0 0 !important;
+}

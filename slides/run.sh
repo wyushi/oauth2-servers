@@ -1,0 +1,1 @@
+docker run -it -v $(pwd):/usr/src/app --name=slides -p 3500:80 nodeserver /bin/bash
