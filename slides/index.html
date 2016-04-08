@@ -289,11 +289,11 @@ $app->get('/users/{name}', function ($request, $response, $args) {
 						<div class="column-container">
 							<div class="double-column" style="vertical-align: top;">
 								<p>Express</p>
-								<img class="borderless" src="images/middleware-slim.png"/>
+								<img class="borderless" src="images/middleware-express.png" />
 							</div><!--
 					 --><div class="double-column" style="vertical-align: top;">
 					 			<p>Slim 3</p>
-					 			<img class="borderless" src="images/middleware-express.png" />
+								<img class="borderless" src="images/middleware-slim.png"/>
 							</div>
 						</div>
 					</section>
@@ -371,12 +371,30 @@ try {
 }
 						</code></pre>
 					</section>
+					<section>
+						<h2>Query Objects</h2>
+						<p>Mongoose</p>
+						<pre><code class="hljs" data-trim contenteditable>
+User.find().sort('-created').exec(function(err, articles) {});
+						</code></pre>
+						<p>PDO Driver</p>
+						<pre><code class="hljs" data-trim contenteditable>
+$r = array();
+$sql = "SELECT * FROM users";
+$stmt = $dbh->prepare($sql);
+if ($stmt->execute()) {
+  $r = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+  $r = 0;
+}
+						</code></pre>
+					</section>
 				</section>
 				<!-- view tamplate -->
 				<section>
 					<section>
 						<h2>View Tamplate</h2>
-						<p>Twig vs. Swig</p>
+						<p>Swig vs. Twig</p>
 					</section>
 					<section>
 						<h2>Setup</h2>
@@ -400,6 +418,23 @@ $container['view'] = function ($container) {
   ));
   return $view;
 };
+						</code></pre>
+					</section>
+					<section>
+						<h2>Render a Template</h2>
+						<p>Swig with Express</p>
+						<pre><code class="hljs" data-trim contenteditable>
+app.get('/', function (req, res) {
+  res.render('index', { title: 'Hey', message: 'Hello World!'});
+});
+						</code></pre>
+						<p>Twig with Slim 3</p>
+						<pre><code class="hljs" data-trim contenteditable>
+$app->get('/', function ($request, $response, $args) {
+  return $this->view->render($response, 'index.html', [
+    'a_variable' => $foo
+  ]);
+});
 						</code></pre>
 					</section>
 				</section>
