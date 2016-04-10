@@ -1,4 +1,4 @@
-# Use Report of MEAN stack and LAMP stack and OAuth 2.0 Server Implementation on them
+# Use Report of MEAN stack and LAMP stack
 
 ## Abstract
 
@@ -150,11 +150,26 @@ Next, we are going to build some server features for both stack, such as RESTful
 In order to do this easier, for LAMP stack, it is better to use some PHP micro framework. There are dozens of PHP framework.
 Here, in this report, I am going to use one of the newest ones called Slim 3.
 
+#### Create an Application
+
+Express
+```javascript
+var express = require('express');
+var app = express();
+```
+
+Slim 3
+```php
+<?php
+$app = new \Slim\App;
+?>
+```
+
 #### Routes & Router
 
 At first, to make RESTful API, at least we need to separate different HTTP methods for the same URI.
 
-##### Express:
+Express
 ```javascript
 app.get('/users', function (req, res) {
   res.send('GET users');
@@ -174,7 +189,7 @@ app.route('/users')
   });
 ```
 
-##### Slim 3:
+Slim 3:
 ```php
 <?php
 $app->get('/users', function ($request, $response, $args) {
@@ -278,33 +293,40 @@ The design of middleware management would look like following graph in Slim 3 fr
 
 ### Database Interactions
 
+Now our servers would serve static file, serve REST API and use middleware.
+Next step we want to make it work with data, connecting to the database.
 
+For MEAN stack, a object modeling framework called Mongoose is used to connect Node.js program with MongoDB.
+Mongoose performs ORM (Object-relational mapping) to database, providing OO objects interface for database interactions.
+To install Mongoose, use ```npm``` command
 
-#### Mongoose vs. PDO MySQL Driver
+```
+$ npm install mongoose
+```
 
-MEAN stack uses an MongoDB object modeling framework called Mongoose to do CURD operations. It provide object like interface to access the data, hiding the database command detail from server application developing.
+On the other side, for LAMP stack, PDO drivers (PHP Data Object drivers) are used to accessing data from PHP scripts.
+PDO is an interface, while it has different Implementation for different database.
+Here, MySQL is used as our database, so we need to use a MySQL PDO driver.
 
-PHP Data Object (PDO) is a interface for accessing data in PHP. PDO itself does not do anything, it is just a interface. PDO drivers do the actual work. Since we use MySQL database, so relatively we need to use a MySQL PDO Driver to do the CURD operations. Comparing with Mongoose, PDO drivers use more original sql command to access the database.
-
-\* A PDO driver for MySQL database called ```pdo_mysql.so``` should be automatically installed when you install PHP. If not, install it using
+\* A PDO driver for MySQL database called ```pdo_mysql.so``` should be automatically installed when you install PHP.
+If not, install it using
 ```
 $ sudo apt-get install php5-mysql
 ```
-After it is installed, it still may not been activated for your ```apache2``` service. To enable it, go to your ```php.ini```, add or uncomment following lines:
+After it is installed, it still may not been activated for your ```apache2``` service.
+To enable it, go to your ```php.ini```, add or uncomment following lines:
 ```
 extension=pdo.so
 extension=pdo_mysql.so
 ```
 
-##### Connect Database
+#### Connect Database
+
 Mongoose:
 ```javascript
 var connectString = 'mongodb://mongo:27017/learn-mean-auth-dev';
 var db = mongoose.connect(connectString, function(err) {
-	if (err) {
-		console.error(chalk.red('Could not connect to MongoDB!'));
-		console.log(chalk.red(err));
-	}
+
 });
 ```
 PDO Driver:
@@ -314,53 +336,59 @@ $dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 ?>
 ```
+
 ##### Create Schema
+
 Using MEAN stack, with Mongoose, we create a model schema directly in model module with javascript.
+
+Mongoose:
 ```javascript
 var mongoose = require('mongoose'),
-	  Schema = mongoose.Schema,
-    UserSchema = new Schema({
-        username: {
-    		type: String,
-    		unique: 'testing error message',
-    		required: 'Please fill in a username',
-    		trim: true
-    	},
-      ...
-    });
+  Schema = mongoose.Schema,
+  UserSchema = new Schema({
+    username: {
+      type: String,
+      unique: 'testing error message',
+      required: 'Please fill in a username',
+      trim: true
+    },
+    ...
+  });
 mongoose.model('User', UserSchema);
 ```
 
-Using LAMP stack, a table need to be created in database, and this should only been done once. So it is better to do this directly with SQL command.
+Using LAMP stack, a table need to be created in database, and this should only been done once.
+So it is better to do this directly with SQL command.
 ```sql
 CREATE TABLE users (
 username VARCHAR(255) NOT NULL,
 ...
 CONSTRAINT username_pk PRIMARY KEY (username))
 ```
-##### Create an object
+
+#### Create an object
+
 After the table table is created, we can insert object into the database.
 
 Mongoose:
 ```javascript
 var user = new User(data);
 user.save(function(err, user) {
-	if (err) {
-    // handle error
-	}
+
 });
 ```
+
 PDO Driver:
 ```php
 <?php
 try {
-    $sql = "INSERT INTO users (username, ...) VALUES (:username, ...)";
-    $stmt = $dbh->prepare($sql);
-    if ($stmt->execute($data)) {
-        $data['id'] = $dbh->lastInsertId();
-    }
+  $sql = "INSERT INTO users (username, ...) VALUES (:username, ...)";
+  $stmt = $dbh->prepare($sql);
+  if ($stmt->execute($data)) {
+    $data['id'] = $dbh->lastInsertId();
+  }
 } catch(PDOException $e) {
-    return $e->getMessage();
+  return $e->getMessage();
 }
 ?>
 ```
@@ -370,11 +398,10 @@ And at last, we also need to get objects out of database.
 Mongoose:
 ```javascript
 User.find().sort('-created').exec(function(err, articles) {
-  if (err) {
-    // handle error
-	}
+
 });
 ```
+
 PDO Driver:
 ```php
 <?php
@@ -382,56 +409,27 @@ $r = array();
 $sql = "SELECT * FROM users";
 $stmt = $dbh->prepare($sql);
 if ($stmt->execute()) {
-    $r = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $r = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
-    $r = 0;
+  $r = 0;
 }
 ?>
 ```
 
-### Javascript vs PHP
+Since Mongoose provides ORM, it is much easier to do database interaction with a OO object-like interface.
+While with PDO drivers, raw SQL commands need to be written and embedded into PHP code.
 
-At first glimpse, JavaScript and PHP could be very similar, especially when using JavaScript with Express and using PHP with Slim 3. However, when we go further, we would find that the same concept in two different languages could be significant different.
+### Template Engine
 
-#### Variable Scope and Closure
-[StackOverflow Thread](http://stackoverflow.com/questions/7417430/javascript-closures-vs-php-closures-whats-the-difference)
-```javascript
-var a = 0;
-var f = function () {
-  console.log(a);
-}
-a = 1;
-f();
-```
-As we all know the ```a = 1;``` clause will change the value of a, then when log a, it shows the new value.
+Although AngularJS can be used for client side application regardless the backend server is implemented by MEAN stack or LAMP stack.
+Sometime we still need or want to serve a page, so we are going to take a look at how templates engine works on each stack.
 
-```php
-<?php
-$a = 0;
-$f = function () {
-  echo $a;
-}
-$a = 2;
-$f();
-?>
-```
-When running this, PHP will complain that variable is undefined. Inside function $f, the outside scope is hide from inside function body. This could be a good thing. By this way, it is not easy for programmer to mass up variables in function scope with the scope outside. However, if we know what we are doing and we insist to use the variable defined outside inside the function body, PHP provide this ```use``` syntax to pass outside variable to inside.
-
-```php
-<? php
-$a = 0;
-$f = function () use ($a) {
-  echo $a
-}
-$a = 2;
-$f();
-?>
-```
-### Template View Engine
+For each stack, there are plenty of choices for template engines.
+Here, in this report, we will use Swig for MEAN stack and Twig for LAMP stack.
+They are as similar as their names.
 
 #### Setup
-
-##### Swig
+Swig with Express
 ```javascript
 var swig = require('swig');
 app.engine('html', swig.renderFile);
@@ -439,66 +437,73 @@ app.set('view engine', 'html');
 app.set('views', path.join(__dirname, './templates'));
 ```
 
-##### Twig
+Twig with Slim 3
 ```php
 <?php
-// Create app
-$app = new \Slim\App();
-
 // Get container
 $container = $app->getContainer();
 
 // Register component on container
 $container['view'] = function ($container) {
-    $view = new \Slim\Views\Twig('path/to/templates', [
-        'cache' => 'path/to/cache'
-    ]);
-    $view->addExtension(new \Slim\Views\TwigExtension(
-        $container['router'],
-        $container['request']->getUri()
-    ));
-    return $view;
+  $view = new \Slim\Views\Twig('path/to/templates', [
+    'cache' => 'path/to/cache'
+  ]);
+  $view->addExtension(new \Slim\Views\TwigExtension(
+    $container['router'],
+    $container['request']->getUri()
+  ));
+  return $view;
 };
 ?>
 ```
 #### HTML Template
 
-##### Swig
+Swig Template
 ```html
 <h1>{{ pagename|title }}</h1>
 <ul>
 {% for author in authors %}
-  <li{% if loop.first %} class="first"{% endif %}>
-    {{ author }}
-  </li>
+  <li>{{ author }}</li>
 {% endfor %}
 </ul>
 ```
 
-##### Twig
+Twig Template
 ```html
-<h1>My Webpage</h1>
-{{ a_variable }}
-<ul id="navigation">
+<h1>{{ title }}</h1>
+<ul>
 {% for item in navigation %}
     <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
 {% endfor %}
 </ul>
 ```
 
-#### Render Tempaltes
+#### Render Templates
+Swig with Express
 ```javascript
 app.get('/', function (req, res) {
   res.render('index', { title: 'Hey', message: 'Hello there!'});
 });
 ```
-
+Twig with Slim 3
 ```php
 <?php
-$app->get('/demo', function ($request, $response, $args) {
-  return $this->view->render($response, 'demo.html', [
+$app->get('/', function ($request, $response, $args) {
+  return $this->view->render($response, 'index.html', [
     'a_variable' => $foo
   ]);
 });
 ?>
 ```
+
+## Conclusion
+
+In this report, we go through how to do some basic server features with both MEAN stack and LAMP stack.
+At first we setup development environments and dependency management system.
+Then we ran HTTP servers and covered some fundamental topics on server side implementations,
+including RESTful API, middleware, database interactions and template engine.
+
+Both stacks are managed to implement these modern server features, however, LAMP stack needs more configurations than MEAN stack.
+Due to the heavy setting up and configuration processes for LAMP stack, I personally recommend MEAN stack more for beginners.
+
+## References
