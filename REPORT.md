@@ -46,68 +46,63 @@ This means as a new developer to either stack, we will learn and compare both st
   - Serve static files
   - RESTful API
   - Middleware
-  - DB interaction
+  - DB interactions
   - Template Engine
 
 ### Environment Setup
 
-To build a 
+Before we start, the first thing we need to do is setting up the development environment.
 
 The installations for either MEAN stack or LAMP stack on a Linux would involve bunch of commands, reboots and configurations.
 To make life easier, I use docker and two popular docker images.
+  - [rmukhia/im-meanjs](https://hub.docker.com/r/rmukhia/im-meanjs/)
+  - [linode/lamp](https://hub.docker.com/r/linode/lamp/)
 
 ### Dependencies Management
 
-#### npm & package.json
+After the development environments have been setup, we can start building our web app.
+In order to build a web app, some libraries are often need to be install before we can actually write some code.
 
+MEAN stack use npm to install, delete and manage the dependency libraries, while LAMP stack use Composer.
+
+#### Add libraries
+
+Both npm and composer use a json formatted file to let developer specify the dependencies libraries and their versions.
+npm's dependencies specification file is called ```package.json```, while composer's is called ```composer.json```.
+
+To install the libraries, for MEAN stack, run:
 ```bash
 $ npm install
 ```
-It will generate ```node_modules``` folder, and store all dependencies inside. To include modules, Node.js need to explicitly name the modules by using
-
-```javascript
-var widget = require('module-name');
-```
-
-#### Composer, composer.json & composer.lock
+while for LAMP stack, run:
 ```bash
 $ composer install
 ```
-It will generate ```vendor``` folder, and store all dependencies inside.
-Composer also generates a file inside ```vendor``` called ```autoload.php```. This file is inlcuded in ```index.php```, and it will auto load all the PHP modules in ```vendor``` folder.
-After running install command, Composer also generates a JSON file called ```composer.lock```. This file stores a list of exact versions  it installed.
-When a new development environment need to be setup, if ```composer.lock``` file is present, Composer will ignore ```composer.json``` file, and install the dependencies based on the lock file.
-This mechanism ensures the program code could tight bind with its dependencies versions. At the same time, this also makes environment setup easier inside a team, in which their members need to have exactly the same environment to make sure their code could work together.
 
-Thus, the dependencies would not update automatically. It need to be done manually.
-```bash
-$ composer update
-```
+When running the above commands, both npm and composer would create a folder to store all the dependencies.
+For MEAN stack, the folder is called ```node_modules```. For LAMP stack, it is celled ```vendor```.
 
-#### node_modules vs. vendor
+Composer also generates a JSON file called ```composer.lock```. This file stores a list of exact versions  it installed.
+When ```composer install``` got run, it will check if there is a ```composer.lock``` file first.
+If there is, it will use ```composer.lock``` to install the dependencies, instead of using ```composer.json```, since the versions are more accurate.
+
+#### \*Dependencies of Dependencies
 Let's take a close look at node_modules directory and vendor directory.
 ![node_modules_structure](./images/node_modules.png)
 ![vendor_structure](./images/vendor.png)
 
-After installing finished, all the dependent libraries would be store in node_modules directory and vendor directory.
+As shown above, inside each node_modules library directory, there will be a ```package.json``` file and another ```node_modules``` directory. Node_modules are nested. However, there is only one ```vendor``` folder among the while project.
 
-As shown above, inside each node_modules library directory, there will be a package.json file and another node_modules directory. Node_modules can be nested. This deeper node_modules directory stores the dependencies of this library. By this way, every module uses its own dependencies inside its own Node_modules directory.
-
-Meanwhile, inside each vendor library directory, there is only a composer.json file, no composer.lock file and no vendor directory. This means the libraries of the project would not have their own dependencies, all libraries shares the same vendor directory. All dependencies are stored in the same folder, no matter which project or libraries they belong to. This mechanism saves space, but it requires all the dependencies are compatible to each other.
-
-For example, our project depends on two library A, B. And both library A and B depend on an utils library called X. However, they are depends on different versions of X.
-In this case, npm would create a node_modules directory for each of A and B, and install the correct version of X in side their own node_modules libraries.
-On the other side, composer would install one version of X inside the vendor directory (where A and B also located there), and raise a warning.
+This means, for npm, each node_module library has its own dependencies, and the dependencies structure is like a tree. For composer, the vendor folder can not be nested, such that the dependencies structure is flat. vendor libraries need to share dependencies if they have.
 
 ### Run HTTP Server
 
-For the server layer, the two stack are very different. LAMP relies on the very successful Apache server, while with MEAN stack, we need to use Express framework to build one.
+Now we setup the environments and installed dependency modules. Finally, we can run a simple HTTP server.
 
-#### Node.js Server
+#### Express Server
 
-Unlike LAMP stack, an Apache2 server will be involved, serving files, and running scripts, Node.js is not a server instead it is a Javascript runtime. Which means, we need to build a HTTP server ourselves.
-
-This may sound hard, but in fact, with Express framework, it could be just a few lines of code.
+For MEAN stack, we are building a HTTP server using Express framework.
+(Node.js is not a server, instead it is a Javascript runtime.)
 
 ```javascript
 var express = require('express');
@@ -120,67 +115,46 @@ app.listen(3000, function () {
 
 #### Apache2 Server
 
-##### Default URL rewriting Rule
+For LAMP stack, Apache 2 is used as a HTTP server.
+With the use of docker and linode/lamp image, we could save some work on configuring Apache 2 server.
+(PHP is also not a server. Apache 2 runs PHP scripts)
 
-By default, if we go to http://example.com/script.php, Apache2 runs the script stored in root/script.php, and response the result.
-
-For example, the script.php looks like following:
-```php
-<?php
-  echo "hello world";
-?>
+Under Linux, Apache 2 runs as a daemon. So it can be started using commnad line:
 ```
-The response would be:
+$ service apache2 start
 ```
-hello world
-```
-As we notice, this is not HTML. In order to make the page shows correct in browser, we need to add HTML tags to echo text.
-```php
-<?php
-  echo "<h1>hello world</h1>";
-?>
-```
-
-##### .htaccess Hypertext Access
-.htaccess file is a configuration file used by Apache2 server to control the access of the server to the director .htaccess under and its subdirectory.
-
-This is also where we are going to define the URL rewriting rules.
-
-```
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
-```
-- The first line tells the server to enable the URL rewriting under this directory.
-- The second and third lines define two conditions under which the following rewriting rules would applied.
-- The fourth line defines the rewriting rule.
-
-Overall, this .htaccess file tells the Apache server, if the REQUEST_FILENAME is not found under this directory, run index.php instead. By this way, the router pattern becomes possible with Apache server.
 
 ### Serve Static Files
 
+So far both servers are running, and we can serve something from those servers.
+The very first thing we need to serve is static files, such as css files javascript files and even the whole AngularJS app.
+
 ##### Express Server
+
+For MEAN stack, Express framework uses a middleware to serve the static files.
+
 ```javascript
 app.use(express.static(path.resolve('./public')));
 ```
 
 ##### Apache2 Server
-Based on the request rewriting rules we talked about before, we can just put a folder called ```static``` under the public folder, and the Apache 2 server will serve files in ```static``` folder based on the relative path provided in the url.
 
-File structure will be looked like below:
-```
-public_html
-  static
-    static_file_1
-    static_file_2
-    ...
-```
+By default, if we go to http://example.com/script.php, Apache2 runs the script stored in ```root/script.php```, and response the result.
+If there is no PHP script define inside ```script.php```, Apache2 will just return the content of the file.
+This is exactly what we need to serve static files.
 
 ### Express.js vs. Slim 3
 
-#### Routes
-Express:
+Now, we can use browser to go to ```path/to/file```, and the server will serve the static file.
+Next, we are going to build some server features for both stack, such as RESTful API, middleware and Database interactions.
+In order to do this easier, for LAMP stack, it is better to use some PHP micro framework. There are dozens of PHP framework.
+Here, in this report, I am going to use one of the newest ones called Slim 3.
+
+#### Routes & Router
+
+At first, to make RESTful API, at least we need to separate different HTTP methods for the same URI.
+
+##### Express:
 ```javascript
 app.get('/users', function (req, res) {
   res.send('GET users');
@@ -199,7 +173,8 @@ app.route('/users')
     res.send('POST users');
   });
 ```
-Slim 3:
+
+##### Slim 3:
 ```php
 <?php
 $app->get('/users', function ($request, $response, $args) {
@@ -217,33 +192,93 @@ $app->any('/users', 'UserController');
 ?>
 ```
 
+With only this snippet of code, the routes would not work as we expect.
+
+As we mentioned above, by default, Apache server will directly serve the file or run the script with the path specified in the URL.
+However, to make RESTful API, the URL doesn't have to represents a file or a script store as file locating somewhere in the file system.
+More generally, a URL would represents a resource store in the database.
+For example, in above case, ```users``` is not a file, but a tables/resource store in the database.
+
+In this case, we need to let Apache server know that when it see URL like ```/users```, don't try to find a file called ```users```, instead run a script called ```index.php``` in which contains above code. (Let's assume above code is stored in a file called ```index.php```)
+
+###### URL Rewriting
+
+In LAMP stack, we use a configuration file called .htaccess to let Apache2 server know our special arrangement for this situation.
+.htaccess is used to control the access of the server to the director .htaccess under and its subdirectory.
+This is where we are going to define the URL rewriting rules we address above.
+
+```
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+```
+- The first line tells the server to enable the URL rewriting under this directory.
+- The second and third lines define two conditions under which the following rewriting rules would applied.
+- The fourth line defines the rewriting rule.
+
+Overall, this .htaccess file tells the Apache server, if the REQUEST_FILENAME is not found under this directory, run index.php instead.
+By this way, the router pattern becomes possible with Apache server.
+
 #### Middleware
+
+There are always some code, for different reasons, we neither want to put it into routes nor want to call it from the routes.
+(In most cases, the code is used multiple time or it is irrelevant to the routes business logic.)
+Middleware is introduced. Middleware works as extra layers of code server need to run before/after it runs your routes code.
+
 Express:
 ```javascript
+// middleware for /users/:name
 app.use('/users/:name', function (req, res, next) {
+    // middleware 1
+    next();
+  }, function (req, res, next) {
+    // middleware 2
+    next();
+  },
   ...
-  next();
+);
+// routes for /users/:name
+app.get('/users/:name', function (req, res) {
+  res.status(200).send();
 });
 ```
+
+The way Express handle middleware is it chains them up.
+After finishing each middleware, developer need to explicitly call function ```next``` to run the next middleware.
+And after all middleware get called and ```next``` function get called in last middleware, express server start run the routes.
+
+The design of middleware management would look like following graph in Express framework.
+![express-middleware](./images/middleware-express.png)
+
 Slim 3:
 ```php
 <?php
 $mw = function ($request, $response, $next) use ($app) {
-    ...
+    // ...
+    $response = $next($request, $response);
+    // ...
     return $response;
 };
 
 $app->get('/users/{name}', function ($request, $response, $args) {
-    ...
+    // ...
     return $response;
 })->add($mw);
 ?>
 ```
 
-<!-- TODO: middleware design logic Comparison -->
+The way Slim 3 framework use middleware is different.
+It treats middleware as a wrapper. Every time adding a middleware, it wraps the exist middleware and app logic inside itself.
+This is why when defining a middleware, we can put our code either before or after ```$response = $next($request, $response);``` clause.
+
+The design of middleware management would look like following graph in Slim 3 framework.
+![slim-middleware](./images/middleware-slim.png)
 
 
 ### Database Interactions
+
+
 
 #### Mongoose vs. PDO MySQL Driver
 
