@@ -89,6 +89,7 @@ If there is, it will use ```composer.lock``` to install the dependencies, instea
 
 #### \*Dependencies of Dependencies
 Let's take a close look at node_modules directory and vendor directory.
+
 ![node_modules_structure](./images/node_modules.png)
 ![vendor_structure](./images/vendor.png)
 
