@@ -5,3 +5,7 @@
 [LAMP Stack Version](https://github.com/wyushi/lamp-oauth)
 
 [Demo Client Server](https://github.com/wyushi/oauth-client)
+
+[Slides](./slides)
+
+[Report](./REPORT.md)
