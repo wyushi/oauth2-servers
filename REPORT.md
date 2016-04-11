@@ -131,7 +131,7 @@ $ service apache2 start
 So far both servers are running, and we can serve something from those servers.
 The very first thing we need to serve is static files, such as css files javascript files and even the whole AngularJS app.
 
-##### Express Server
+#### Express Server
 
 For MEAN stack, Express framework uses a middleware to serve the static files [11].
 
@@ -139,7 +139,7 @@ For MEAN stack, Express framework uses a middleware to serve the static files [1
 app.use(express.static(path.resolve('./public')));
 ```
 
-##### Apache2 Server
+#### Apache2 Server
 
 By default, if we go to http://example.com/script.php, Apache2 runs the script stored in ```root/script.php```, and response the result.
 If there is no PHP script define inside ```script.php```, Apache2 will just return the content of the file.
@@ -171,7 +171,7 @@ $app = new \Slim\App;
 
 At first, to make RESTful API, at least we need to separate different HTTP methods for the same URI.
 
-Express
+##### Express
 ```javascript
 app.get('/users', function (req, res) {
   res.send('GET users');
@@ -191,7 +191,7 @@ app.route('/users')
   });
 ```
 
-Slim 3:
+##### Slim 3:
 ```php
 <?php
 $app->get('/users', function ($request, $response, $args) {
@@ -243,7 +243,7 @@ There are always some code, for different reasons, we neither want to put it int
 (In most cases, the code is used multiple time or it is irrelevant to the routes business logic.)
 Middleware is introduced. Middleware works as extra layers of code server need to run before/after it runs your routes code.
 
-Express [14]
+##### Express [14]
 ```javascript
 // middleware for /users/:name
 app.use('/users/:name', function (req, res, next) {
@@ -268,7 +268,7 @@ And after all middleware get called and ```next``` function get called in last m
 The design of middleware management would look like following graph in Express framework.
 ![express-middleware](./images/middleware-express.png)
 
-Slim 3 [15]
+##### Slim 3 [15]
 ```php
 <?php
 $mw = function ($request, $response, $next) use ($app) {
@@ -324,14 +324,14 @@ extension=pdo_mysql.so
 
 #### Connect Database
 
-Mongoose
+##### Mongoose
 ```javascript
 var connectString = 'mongodb://mongo:27017/learn-mean-auth-dev';
 var db = mongoose.connect(connectString, function(err) {
 
 });
 ```
-PDO Driver
+##### PDO Driver
 ```php
 <?php
 $dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
@@ -343,7 +343,7 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 Using MEAN stack, with Mongoose, we create a model schema directly in model module with javascript.
 
-Mongoose
+##### Mongoose
 ```javascript
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
@@ -359,6 +359,8 @@ var mongoose = require('mongoose'),
 mongoose.model('User', UserSchema);
 ```
 
+##### SQL Command
+
 Using LAMP stack, a table need to be created in database, and this should only been done once.
 So it is better to do this directly with SQL command.
 ```sql
@@ -372,7 +374,7 @@ CONSTRAINT username_pk PRIMARY KEY (username))
 
 After the table table is created, we can insert object into the database.
 
-Mongoose
+##### Mongoose
 ```javascript
 var user = new User(data);
 user.save(function(err, user) {
@@ -380,7 +382,7 @@ user.save(function(err, user) {
 });
 ```
 
-PDO Driver
+##### PDO Driver
 ```php
 <?php
 try {
@@ -397,14 +399,14 @@ try {
 ##### Query objects
 And at last, we also need to get objects out of database.
 
-Mongoose
+##### Mongoose
 ```javascript
 User.find().sort('-created').exec(function(err, articles) {
 
 });
 ```
 
-PDO Driver
+##### PDO Driver
 ```php
 <?php
 $r = array();
@@ -431,7 +433,7 @@ Here, in this report, we will use Swig [20] for MEAN stack and Twig [21] for LAM
 They are as similar as their names.
 
 #### Setup
-Swig with Express [22]
+##### Swig with Express [22]
 ```javascript
 var swig = require('swig');
 app.engine('html', swig.renderFile);
@@ -439,7 +441,7 @@ app.set('view engine', 'html');
 app.set('views', path.join(__dirname, './templates'));
 ```
 
-Twig with Slim 3 [23]
+##### Twig with Slim 3 [23]
 ```php
 <?php
 // Get container
@@ -460,7 +462,7 @@ $container['view'] = function ($container) {
 ```
 #### HTML Template
 
-Swig Template
+##### Swig Template
 ```html
 <h1>{{ pagename|title }}</h1>
 <ul>
@@ -470,7 +472,7 @@ Swig Template
 </ul>
 ```
 
-Twig Template
+##### Twig Template
 ```html
 <h1>{{ title }}</h1>
 <ul>
@@ -481,13 +483,13 @@ Twig Template
 ```
 
 #### Render Templates
-Swig with Express [22]
+##### Swig with Express [22]
 ```javascript
 app.get('/', function (req, res) {
   res.render('index', { title: 'Hey', message: 'Hello there!'});
 });
 ```
-Twig with Slim 3 [23]
+##### Twig with Slim 3 [23]
 ```php
 <?php
 $app->get('/', function ($request, $response, $args) {
