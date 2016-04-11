@@ -41,14 +41,14 @@ So we will talk about the difference on their interaction with server framework 
 
 In the following sections, I will compare MEAN stack and LAMP stack, and address the difference in an order of learning process.
 This means as a new developer to either stack, we will learn and compare both stacks on following point:
-  - Environment setup
-  - Dependency management
-  - HTTP Server
-  - Serve static files
-  - RESTful API
-  - Middleware
-  - DB interactions
-  - Template Engine
+  - [Environment setup](#environment-setup)
+  - [Dependency management](#dependency-management)
+  - [HTTP Server](#run-http-server)
+  - [Serve static files](#serve-static-files)
+  - [RESTful API](#expressjs-vs-slim-3)
+  - [Middleware](#middleware)
+  - [DB interactions](#database-interactions)
+  - [Template Engine](#template-engine)
 
 ### Environment Setup
 
