@@ -4,8 +4,9 @@
 
 MEAN stack is one of the most recent and popular web solution widely used now.
 Meanwhile LAMP stack is one of the oldest ones, however this does not prevent people from using it in a modern fashion.
-In this report, I am going to compare my working experience with both MEAN stack and LAMP stack as a web developer.
-Base on my experience, due to heavy setup and configuration process for LAMP stack, MEAN stack is easier to learn and work with, especially for new developers.
+
+In this report, I am going to compare my working experience of both MEAN stack and LAMP stack as a web developer.
+Due to heavy setup and configuration processes for LAMP stack, I believe MEAN stack is easier to learn and work with, especially for new developers.
 
 ## Introduction
 
@@ -28,14 +29,14 @@ LAMP stack incldues:
   - Linux
 
 In either stack, each letter represents a software. However, these softwares are not one-to-one connected between stacks.
-For example, in MEAN stack, A represents AngularJS, which is a front-end framework running in client side.
+For example, in MEAN stack, A represents AngularJS [1], which is a front-end framework running in client side.
 It does not care what technologies server-side is using. It can work with either Node.js server or a Apache-PHP server.
-Meanwhile, in LAMP stack, L represents Linux. In most case, MEAN stack server also running on a Linux.
+Meanwhile, in LAMP stack, L represents Linux [2]. In most case, MEAN stack server also running on a Linux.
 The stack layers can be redraw as below.
 
 ![stack](./images/stack.png)
 
-Furthermore, MongoDB is a non-relational database, while MySQL is a relational data. The difference between non-relational databases and relational database is out the scope of this report.
+Furthermore, MongoDB [3] is a non-relational database, while MySQL [4] is a relational data. The difference between non-relational databases and relational database is out the scope of this report.
 So we will talk about the difference on their interaction with server framework for two databases.
 
 In the following sections, I will compare MEAN stack and LAMP stack, and address the difference in an order of learning process.
@@ -51,21 +52,21 @@ This means as a new developer to either stack, we will learn and compare both st
 
 ### Environment Setup
 
-Before we start, the first thing we need to do is setting up the development environment.
+Before we can do anything, we need to setup the development environment for each stack.
 
 The installations for either MEAN stack or LAMP stack on a Linux would involve bunch of commands, reboots and configurations.
 To make life easier, I use docker and two popular docker images.
-  - [rmukhia/im-meanjs](https://hub.docker.com/r/rmukhia/im-meanjs/)
-  - [linode/lamp](https://hub.docker.com/r/linode/lamp/)
+  - [rmukhia/im-meanjs](https://hub.docker.com/r/rmukhia/im-meanjs/) [5]
+  - [linode/lamp](https://hub.docker.com/r/linode/lamp/) [6]
 
-### Dependencies Management
+### Dependency Management
 
 After the development environments have been setup, we can start building our web app.
 In order to build a web app, some libraries are often need to be install before we can actually write some code.
 
-MEAN stack use npm to install, delete and manage the dependency libraries, while LAMP stack use Composer.
+MEAN stack use npm [7] to install, delete and manage the dependency libraries, while LAMP stack use Composer [8].
 
-#### Add libraries
+#### Adding libraries
 
 Both npm and composer use a json formatted file to let developer specify the dependencies libraries and their versions.
 npm's dependencies specification file is called ```package.json```, while composer's is called ```composer.json```.
@@ -101,7 +102,7 @@ Now we setup the environments and installed dependency modules. Finally, we can 
 
 #### Express Server
 
-For MEAN stack, we are building a HTTP server using Express framework.
+For MEAN stack, we are building a HTTP server using Express framework [9].
 (Node.js is not a server, instead it is a Javascript runtime.)
 
 ```javascript
@@ -115,11 +116,11 @@ app.listen(3000, function () {
 
 #### Apache2 Server
 
-For LAMP stack, Apache 2 is used as a HTTP server.
+For LAMP stack, Apache 2 [10] is used as a HTTP server.
 With the use of docker and linode/lamp image, we could save some work on configuring Apache 2 server.
 (PHP is also not a server. Apache 2 runs PHP scripts)
 
-Under Linux, Apache 2 runs as a daemon. So it can be started using commnad line:
+Under Linux, Apache 2 runs as a daemon. So it can be started using command line:
 ```
 $ service apache2 start
 ```
@@ -131,7 +132,7 @@ The very first thing we need to serve is static files, such as css files javascr
 
 ##### Express Server
 
-For MEAN stack, Express framework uses a middleware to serve the static files.
+For MEAN stack, Express framework uses a middleware to serve the static files [11].
 
 ```javascript
 app.use(express.static(path.resolve('./public')));
@@ -152,13 +153,13 @@ Here, in this report, I am going to use one of the newest ones called Slim 3.
 
 #### Create an Application
 
-Express
+Express [9]
 ```javascript
 var express = require('express');
 var app = express();
 ```
 
-Slim 3
+Slim 3 [12]
 ```php
 <?php
 $app = new \Slim\App;
@@ -220,7 +221,7 @@ In this case, we need to let Apache server know that when it see URL like ```/us
 
 In LAMP stack, we use a configuration file called .htaccess to let Apache2 server know our special arrangement for this situation.
 .htaccess is used to control the access of the server to the director .htaccess under and its subdirectory.
-This is where we are going to define the URL rewriting rules we address above.
+This is where we are going to define the URL rewriting rules we address above. [13]
 
 ```
 RewriteEngine On
@@ -241,7 +242,7 @@ There are always some code, for different reasons, we neither want to put it int
 (In most cases, the code is used multiple time or it is irrelevant to the routes business logic.)
 Middleware is introduced. Middleware works as extra layers of code server need to run before/after it runs your routes code.
 
-Express:
+Express [14]
 ```javascript
 // middleware for /users/:name
 app.use('/users/:name', function (req, res, next) {
@@ -266,7 +267,7 @@ And after all middleware get called and ```next``` function get called in last m
 The design of middleware management would look like following graph in Express framework.
 ![express-middleware](./images/middleware-express.png)
 
-Slim 3:
+Slim 3 [15]
 ```php
 <?php
 $mw = function ($request, $response, $next) use ($app) {
@@ -287,7 +288,7 @@ The way Slim 3 framework use middleware is different.
 It treats middleware as a wrapper. Every time adding a middleware, it wraps the exist middleware and app logic inside itself.
 This is why when defining a middleware, we can put our code either before or after ```$response = $next($request, $response);``` clause.
 
-The design of middleware management would look like following graph in Slim 3 framework.
+The design of middleware management would look like following graph in Slim 3 framework. [15]
 ![slim-middleware](./images/middleware-slim.png)
 
 
@@ -297,24 +298,24 @@ Now our servers would serve static file, serve REST API and use middleware.
 Next step we want to make it work with data, connecting to the database.
 
 For MEAN stack, a object modeling framework called Mongoose is used to connect Node.js program with MongoDB.
-Mongoose performs ORM (Object-relational mapping) to database, providing OO objects interface for database interactions.
+Mongoose [16] performs ORM (Object-relational mapping) to database, providing OO objects interface for database interactions.
 To install Mongoose, use ```npm``` command
 
 ```
 $ npm install mongoose
 ```
 
-On the other side, for LAMP stack, PDO drivers (PHP Data Object drivers) are used to accessing data from PHP scripts.
+On the other side, for LAMP stack, PDO drivers (PHP Data Object drivers) [17] are used to accessing data from PHP scripts.
 PDO is an interface, while it has different Implementation for different database.
 Here, MySQL is used as our database, so we need to use a MySQL PDO driver.
 
 \* A PDO driver for MySQL database called ```pdo_mysql.so``` should be automatically installed when you install PHP.
-If not, install it using
+If not, install it using [18]
 ```
 $ sudo apt-get install php5-mysql
 ```
 After it is installed, it still may not been activated for your ```apache2``` service.
-To enable it, go to your ```php.ini```, add or uncomment following lines:
+To enable it, go to your ```php.ini```, add or uncomment following lines [19]:
 ```
 extension=pdo.so
 extension=pdo_mysql.so
@@ -322,14 +323,14 @@ extension=pdo_mysql.so
 
 #### Connect Database
 
-Mongoose:
+Mongoose
 ```javascript
 var connectString = 'mongodb://mongo:27017/learn-mean-auth-dev';
 var db = mongoose.connect(connectString, function(err) {
 
 });
 ```
-PDO Driver:
+PDO Driver
 ```php
 <?php
 $dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
@@ -341,7 +342,7 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 Using MEAN stack, with Mongoose, we create a model schema directly in model module with javascript.
 
-Mongoose:
+Mongoose
 ```javascript
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
@@ -370,7 +371,7 @@ CONSTRAINT username_pk PRIMARY KEY (username))
 
 After the table table is created, we can insert object into the database.
 
-Mongoose:
+Mongoose
 ```javascript
 var user = new User(data);
 user.save(function(err, user) {
@@ -378,7 +379,7 @@ user.save(function(err, user) {
 });
 ```
 
-PDO Driver:
+PDO Driver
 ```php
 <?php
 try {
@@ -395,14 +396,14 @@ try {
 ##### Query objects
 And at last, we also need to get objects out of database.
 
-Mongoose:
+Mongoose
 ```javascript
 User.find().sort('-created').exec(function(err, articles) {
 
 });
 ```
 
-PDO Driver:
+PDO Driver
 ```php
 <?php
 $r = array();
@@ -425,11 +426,11 @@ Although AngularJS can be used for client side application regardless the backen
 Sometime we still need or want to serve a page, so we are going to take a look at how templates engine works on each stack.
 
 For each stack, there are plenty of choices for template engines.
-Here, in this report, we will use Swig for MEAN stack and Twig for LAMP stack.
+Here, in this report, we will use Swig [20] for MEAN stack and Twig [21] for LAMP stack.
 They are as similar as their names.
 
 #### Setup
-Swig with Express
+Swig with Express [22]
 ```javascript
 var swig = require('swig');
 app.engine('html', swig.renderFile);
@@ -437,7 +438,7 @@ app.set('view engine', 'html');
 app.set('views', path.join(__dirname, './templates'));
 ```
 
-Twig with Slim 3
+Twig with Slim 3 [23]
 ```php
 <?php
 // Get container
@@ -479,13 +480,13 @@ Twig Template
 ```
 
 #### Render Templates
-Swig with Express
+Swig with Express [22]
 ```javascript
 app.get('/', function (req, res) {
   res.render('index', { title: 'Hey', message: 'Hello there!'});
 });
 ```
-Twig with Slim 3
+Twig with Slim 3 [23]
 ```php
 <?php
 $app->get('/', function ($request, $response, $args) {
@@ -507,3 +508,49 @@ Both stacks are managed to implement these modern server features, however, LAMP
 Due to the heavy setting up and configuration processes for LAMP stack, I personally recommend MEAN stack more for beginners.
 
 ## References
+
+[1]"AngularJS — Superheroic JavaScript MVW Framework", Angularjs.org, 2016. [Online]. Available: https://angularjs.org/. [Accessed: 11- Apr- 2016].
+
+[2]"Linux", Linux.com | The source for Linux information, 2016. [Online]. Available: https://www.linux.com/. [Accessed: 11- Apr- 2016].
+
+[3]"MongoDB for GIANT Ideas | MongoDB", Mongodb.org, 2016. [Online]. Available: https://www.mongodb.org/. [Accessed: 11- Apr- 2016].
+
+[4]"MySQL", Mysql.com, 2016. [Online]. Available: https://www.mysql.com/. [Accessed: 11- Apr- 2016].
+
+[5]Hub.docker.com, 2016. [Online]. Available: https://hub.docker.com/r/rmukhia/im-meanjs/. [Accessed: 11- Apr- 2016].
+
+[6]Hub.docker.com, 2016. [Online]. Available: https://hub.docker.com/r/linode/lamp/. [Accessed: 11- Apr- 2016].
+
+[7]"npm", Npmjs.com, 2016. [Online]. Available: https://www.npmjs.com/. [Accessed: 11- Apr- 2016].
+
+[8]"Composer", Getcomposer.org, 2016. [Online]. Available: https://getcomposer.org/. [Accessed: 11- Apr- 2016].
+
+[9]"Express "Hello World" example", Expressjs.com, 2016. [Online]. Available: http://expressjs.com/en/starter/hello-world.html. [Accessed: 11- Apr- 2016].
+
+[10]D. Group, "Welcome! - The Apache HTTP Server Project", Httpd.apache.org, 2016. [Online]. Available: https://httpd.apache.org/. [Accessed: 11- Apr- 2016].
+
+[11]"Serve Static files with Middleware", Expressjs.com, 2016. [Online]. Available: http://expressjs.com/en/guide/using-middleware.html#middleware.built-in. [Accessed: 11- Apr- 2016].
+
+[12]"Slim 3 Hello World", Slim Framework, 2016. [Online]. Available: http://www.slimframework.com/docs/#how-does-it-work. [Accessed: 11- Apr- 2016].
+
+[13]"Apache Configuration for Slim 3", Slim Framework, 2016. [Online]. Available: http://www.slimframework.com/docs/start/web-servers.html#apache-configuration. [Accessed: 11- Apr- 2016].
+
+[14]"Using Express middleware", Expressjs.com, 2016. [Online]. Available: http://expressjs.com/en/guide/using-middleware.html. [Accessed: 11- Apr- 2016].
+
+[15]"Middleware", Slim Framework, 2016. [Online]. Available: http://www.slimframework.com/docs/concepts/middleware.html. [Accessed: 11- Apr- 2016].
+
+[16]"Mongoose ODM v4.4.12", Mongoosejs.com, 2016. [Online]. Available: http://mongoosejs.com/. [Accessed: 11- Apr- 2016].
+
+[17]"PHP: PDO Drivers - Manual", Php.net, 2016. [Online]. Available: http://php.net/manual/en/pdo.drivers.php. [Accessed: 11- Apr- 2016].
+
+[18]H.  php5?, "How do I install and enable pdo_mysql and gd extensions for php5?", Askubuntu.com, 2016. [Online]. Available: http://askubuntu.com/questions/384677/how-do-i-install-and-enable-pdo-mysql-and-gd-extensions-for-php5. [Accessed: 11- Apr- 2016].
+
+[19]H.  pdo_mysql, "How enable pdo_mysql", Serverfault.com, 2016. [Online]. Available: http://serverfault.com/questions/471282/how-enable-pdo-mysql. [Accessed: 11- Apr- 2016].
+
+[20]"Swig - A Node.js and Browser JavaScript Template Engine", Paularmstrong.github.io, 2016. [Online]. Available: http://paularmstrong.github.io/swig/. [Accessed: 11- Apr- 2016].
+
+[21]"Homepage - Twig - The flexible, fast, and secure PHP template engine", Twig.sensiolabs.org, 2016. [Online]. Available: http://twig.sensiolabs.org/. [Accessed: 11- Apr- 2016].
+
+[22]C.  Express, "Cannot render swig templates in Express", Stackoverflow.com, 2016. [Online]. Available: http://stackoverflow.com/a/13907921. [Accessed: 11- Apr- 2016].
+
+[23]"Templates", Slim Framework, 2016. [Online]. Available: http://www.slimframework.com/docs/features/templates.html. [Accessed: 11- Apr- 2016].
